@@ -6,7 +6,13 @@
  */
 package ensambladorhc12;
 
+import com.sun.xml.internal.ws.api.ResourceLoader;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.PrintWriter;
+import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -32,14 +38,17 @@ public final class EnsambladorHC12Raw {
 
     
     public static void main(String[] args) {
-        final String FILE_NAME = "C:\\Users\\hp\\Documents\\NetBeansProjects\\EnsambladorHC12\\src\\ensambladorhc12\\P1ASM2.TXT";
+        String FILE_NAME = "src/ensambladorhc12/P1ASM2.TXT";
+        new File("src/ensambladorhc12/errores").mkdirs();
+        
+        
         if(!Files.exists(Paths.get(FILE_NAME)))
-            System.out.println("\tERROR: El archivo no existe");
+            EnsambladorHC12Raw.writeError(0, "\n\tERROR: El archivo no existe");
         else
         {
             EnsambladorHC12Raw ensamblador = new EnsambladorHC12Raw(FILE_NAME);
-             if(ensamblador.getContenidoDeArchivo().trim().isEmpty())
-                System.out.println("\tERROR: El archivo no contiene nada");
+            if(ensamblador.getContenidoDeArchivo().trim().isEmpty())
+                EnsambladorHC12Raw.writeError(0, "\n\tERROR: El archivo no contiene nada");
             else
             {
                 String[] lineas = ensamblador.separarEnLineas(ensamblador.getContenidoDeArchivo());
@@ -56,31 +65,33 @@ public final class EnsambladorHC12Raw {
                               break;
                          }
                          else
-                             System.out.println("\tERROR: El archivo no termina con END");
+                             EnsambladorHC12Raw.writeError(i+1, "\n\tERROR: El archivo no termina con END");
                      }
                      else if (lineas[i].trim().isEmpty()) 
-                         System.out.println("\tERROR: linea Vacía");
+                          EnsambladorHC12Raw.writeError(i+1, "\n\tERROR: linea Vacía");
                      else if(ensamblador.isComentario(lineas[i])) 
                          System.out.println("COMENTARIO="+lineas[i]);
                      else 
                      {
-                         System.out.println("");
                          if(ensamblador.hasETIQUETA(lineas[i]))
                          {
-                             System.out.print(ensamblador.validarETIQUETA(palabra[0]));
+                             ensamblador.setEtiqueta(ensamblador.validarETIQUETA(palabra[0]));
+                             if(ensamblador.getEtiqueta().contains("\tERROR: "))
+                                 EnsambladorHC12Raw.writeError(i+1, ensamblador.getEtiqueta());
+                             else
+                                 System.out.print(ensamblador.getEtiqueta());
                              if(palabra.length>1)
-                                 ensamblador.analizarLinea(Arrays.copyOfRange(palabra, 1, palabra.length));
+                                 ensamblador.analizarLinea(i+1, Arrays.copyOfRange(palabra, 1, palabra.length));
                              else
                              {
-                                 System.out.println("CODOP = null");
-                                 System.out.println("\tERROR: Si existe una etiqueta debe existir otro token más");
-                                 System.out.println("OPERANDO = null\n");
+                                 EnsambladorHC12Raw.writeError(i+1, "CODOP = null\n\tERROR: Si existe una etiqueta debe existir otro token más");
+                                 System.out.println("OPERANDO = null");
                              }
                          }
                          else
                          {
                              System.out.println("ETIQUETA = null");
-                             ensamblador.analizarLinea(palabra);
+                             ensamblador.analizarLinea(i+1, palabra);
                          }
                      }
                  }
@@ -101,18 +112,22 @@ public final class EnsambladorHC12Raw {
         return contenido.trim().split("\\s++");
     }
     
-    private void analizarLinea(String[] palabras) {
-        
-        System.out.print(this.validarCODOP(palabras[0]));
+    private void analizarLinea(int LINE_NUMBER, String[] palabras) {
+        this.setCodop(this.validarCODOP(palabras[0]));
+        if(this.getCodop().contains("\tERROR: "))
+            EnsambladorHC12Raw.writeError(LINE_NUMBER, this.getCodop());
+        else
+            System.out.println(this.getCodop());
         if(palabras.length>1)
         {
             StringBuilder s = new StringBuilder("");
             for (int i = 1; i < palabras.length; i++) 
                s.append(palabras[i]).append(" ");
-            System.out.println(this.validarOPERANDO(s.toString()));
+            this.setOperando(this.validarOPERANDO(s.toString()));
+            System.out.println(this.getOperando());
         }
         else
-             System.out.println("OPERANDO = null\n");
+            System.out.println("OPERANDO = null\n");
     }
 
     public boolean  isComentario(String linea) {
@@ -128,30 +143,30 @@ public final class EnsambladorHC12Raw {
     }
     
     public String validarCODOP(String palabra ) {
-        StringBuilder s = new StringBuilder("CODOP = "+palabra+"\n");
+        StringBuilder s = new StringBuilder("CODOP = "+palabra+"");
         if(palabra.length()>5)
-            return s.append("\tERROR: Tamaño de CODOP mayor a 5\n").toString();
+            return s.append("\n\tERROR: Tamaño de CODOP mayor a 5").toString();
         else if(!(""+palabra.charAt(0)).matches("^[a-zA-Z]$"))
-                return s.append("\tERROR: Los CODOPS no pueden empezar con carácteres que no sean alfabéticos\n").toString();
+                return s.append("\n\tERROR: Los CODOPS no pueden empezar con carácteres que no sean alfabéticos").toString();
         else if(!palabra.matches("^[^.]*.[^.]*$"))
-            return  s.append("\tERROR: No se puede usar más de 2 veces el caracter \".\" en los CODOPS\n").toString();
+            return  s.append("\n\tERROR: No se puede usar más de 2 veces el caracter \".\" en los CODOPS").toString();
         else if(palabra.length()> 1 &&
                 !(palabra.substring(1).matches("^[a-zA-Z\\.]+$"))
                ) 
-            return s.append("\tERROR: Existe algún carácter inválido en el CODOP\n").toString();
+            return s.append("\n\tERROR: Existe algún carácter inválido en el CODOP").toString();
         return  s.toString();
     }
-    
-    private String validarETIQUETA(String palabra ) {
-        StringBuilder s = new StringBuilder("ETIQUETA = "+palabra+"\n");
+     
+   private String validarETIQUETA(String palabra ) {
+        StringBuilder s = new StringBuilder("ETIQUETA = "+palabra+"");
         if(palabra.length()>8)
-            return s.append("\tERROR: Tamaño de ETIQUETA mayor a 8\n").toString();
+            return s.append("\n\tERROR: Tamaño de ETIQUETA mayor a 8").toString();
         else if(!(""+palabra.charAt(0)).matches("^[a-zA-Z]$"))
-            return s.append("\tERROR: Las ETIQUETAS no pueden empezar con carácteres que no sean alfabéticos\n").toString();
+            return s.append("\n\tERROR: Las ETIQUETAS no pueden empezar con carácteres que no sean alfabéticos").toString();
         else if(palabra.length()> 1 &&
                 !(palabra.substring(1).matches("^[a-zA-Z0-9_]{0,7}$"))
                )
-             return s.append("\tERROR: Existe algún carácter inválido en la ETIQUETA\n").toString();
+             return s.append("\n\tERROR: Existe algún carácter inválido en la ETIQUETA").toString();
         else
             return s.toString();
     }
@@ -186,5 +201,15 @@ public final class EnsambladorHC12Raw {
 
     public void setContenidoDeArchivo(String aContenidoDeArchivo) {
         contenidoDeArchivo = aContenidoDeArchivo;
-    }    
-}
+    }
+    
+    public static void writeError(int LINE_NUMBER, String FILE_CONTENT){
+        try(  PrintWriter out = new PrintWriter( "C:\\Users\\hp\\Documents\\NetBeansProjects\\EnsambladorHC12\\src\\ensambladorhc12\\"+LINE_NUMBER+"ERROR"+".txt" )  )
+        {
+            System.out.println(FILE_CONTENT+":Linea "+LINE_NUMBER);
+            out.println(FILE_CONTENT+":Linea "+LINE_NUMBER);
+            out.close();
+        } 
+        catch (FileNotFoundException ex) {Logger.getLogger(EnsambladorHC12Raw.class.getName()).log(Level.SEVERE, null, ex);}
+    }
+}        
