@@ -18,13 +18,12 @@ import java.util.logging.Logger;
 
 public final class EnsambladorHC12Raw {
 
-    private final  String FILE_NAME ="C:\\Users\\hp\\Documents\\NetBeansProjects\\EnsambladorHC12\\src\\ensambladorhc12\\P1ASM2.TXT";
     private String contenidoDeArchivo;
     private String codop;
     private String operando;
     private String etiqueta;
    
-    public EnsambladorHC12Raw() 
+    public EnsambladorHC12Raw(String FILE_NAME) 
     {
         try{this.setContenidoDeArchivo(this.readFile(FILE_NAME,StandardCharsets.UTF_8));}
         catch (IOException ex){Logger.getLogger(EnsambladorHC12.class.getName()).log(Level.SEVERE, null, ex);}
@@ -33,11 +32,12 @@ public final class EnsambladorHC12Raw {
 
     
     public static void main(String[] args) {
-        EnsambladorHC12Raw ensamblador = new EnsambladorHC12Raw();
-        if(!Files.exists(Paths.get(ensamblador.getFILE_NAME())))
+        final String FILE_NAME = "C:\\Users\\hp\\Documents\\NetBeansProjects\\EnsambladorHC12\\src\\ensambladorhc12\\P1ASM2.TXT";
+        if(!Files.exists(Paths.get(FILE_NAME)))
             System.out.println("\tERROR: El archivo no existe");
         else
         {
+            EnsambladorHC12Raw ensamblador = new EnsambladorHC12Raw(FILE_NAME);
              if(ensamblador.getContenidoDeArchivo().trim().isEmpty())
                 System.out.println("\tERROR: El archivo no contiene nada");
             else
@@ -186,9 +186,5 @@ public final class EnsambladorHC12Raw {
 
     public void setContenidoDeArchivo(String aContenidoDeArchivo) {
         contenidoDeArchivo = aContenidoDeArchivo;
-    }
-    
-    public String getFILE_NAME() {
-        return FILE_NAME;
-    }
+    }    
 }
