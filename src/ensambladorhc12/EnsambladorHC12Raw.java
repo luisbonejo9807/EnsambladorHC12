@@ -11,82 +11,81 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/**
- *
- * @author hp
- */
+
 public final class EnsambladorHC12Raw {
 
-    final static String FILE_NAME ="C:\\Users\\hp\\Documents\\NetBeansProjects\\EnsambladorHC12\\src\\ensambladorhc12\\P1ASM2.TXT";
-    private static String contenidoDeArchivo;
-    private static ArrayList<String>  comentarios;
-    private static ArrayList<String>  codops;
-    private static ArrayList<String>  operandos;
-    private static ArrayList<String>  etiquetas;
-    private static ArrayList<String>  lineasErroneas;
-
-    
-
+    private final  String FILE_NAME ="C:\\Users\\hp\\Documents\\NetBeansProjects\\EnsambladorHC12\\src\\ensambladorhc12\\P1ASM2.TXT";
+    private String contenidoDeArchivo;
+    private String codop;
+    private String operando;
+    private String etiqueta;
+   
     public EnsambladorHC12Raw() 
     {
-        this.setComentarios(new ArrayList<>());
-        this.setCodops(new ArrayList<>());
-        this.setOperandos(new ArrayList<>());
-        this.setEtiquetas(new ArrayList<>());
+        try{this.setContenidoDeArchivo(this.readFile(FILE_NAME,StandardCharsets.UTF_8));}
+        catch (IOException ex){Logger.getLogger(EnsambladorHC12.class.getName()).log(Level.SEVERE, null, ex);}
     }
     
-    
-    
+
     
     public static void main(String[] args) {
         EnsambladorHC12Raw ensamblador = new EnsambladorHC12Raw();
-        try 
+        if(!Files.exists(Paths.get(ensamblador.getFILE_NAME())))
+            System.out.println("\tERROR: El archivo no existe");
+        else
         {
-          String contenido = ensamblador.readFile(FILE_NAME,StandardCharsets.UTF_8);
-           for (String linea : ensamblador.separarEnLineas(contenido))
-           {
-//               validacion para linea vacia
-//               if(linea.length())
-//               {
-//                   System.out.println("ERROR linea vacia");
-//               }
-               String[] palabra = ensamblador.separarEnPalabras(linea);
-              
-               if(linea.charAt(linea.length()-1) == palabra[palabra.length-1].charAt(palabra[palabra.length-1].length()-1))
-                        System.out.println("END");
-               else if(ensamblador.isComentario(linea))
-               {
-                   ensamblador.getComentarios().add(linea);
-                   System.out.println("COMENTARIO="+ensamblador.getComentarios().get(ensamblador.getComentarios().size()-1));
-               }
-               else 
-               {
-                   System.out.println("");
-                   if(ensamblador.hasETIQUETA(linea))
-                   {
-                       System.out.print(ensamblador.validarETIQUETA(palabra[0]));
-                       if(palabra.length>1)
-                           ensamblador.analizarLinea(Arrays.copyOfRange(palabra, 1, palabra.length));
-                       else
-                       {
-                           System.out.println("CODOP = null");
-                           System.out.println("\tERROR: Si existe una etiqueta debe existir otro token más");
-                           System.out.println("OPERANDO = null\n");
-                       }
-                   }
-                   else
-                   {
-                       System.out.println("ETIQUETA = null");
-                       ensamblador.analizarLinea(palabra);
-                   }
-               }
-           }
-        } catch (IOException ex) {Logger.getLogger(EnsambladorHC12Raw.class.getName()).log(Level.SEVERE, null, ex);}
+             if(ensamblador.getContenidoDeArchivo().trim().isEmpty())
+                System.out.println("\tERROR: El archivo no contiene nada");
+            else
+            {
+                String[] lineas = ensamblador.separarEnLineas(ensamblador.getContenidoDeArchivo());
+
+                for (int i = 0; i < lineas.length; i++) 
+                {   
+                     String[] palabra = ensamblador.separarEnPalabras(lineas[i]);
+
+                     if(i == lineas.length-1 )
+                     {
+                         if( palabra[0].matches("/^END$/i"))
+                         {
+                              System.out.println("END");
+                              break;
+                         }
+                         else
+                             System.out.println("\tERROR: El archivo no termina con END");
+                     }
+                     else if (lineas[i].trim().isEmpty()) 
+                         System.out.println("\tERROR: linea Vacía");
+                     else if(ensamblador.isComentario(lineas[i])) 
+                         System.out.println("COMENTARIO="+lineas[i]);
+                     else 
+                     {
+                         System.out.println("");
+                         if(ensamblador.hasETIQUETA(lineas[i]))
+                         {
+                             System.out.print(ensamblador.validarETIQUETA(palabra[0]));
+                             if(palabra.length>1)
+                                 ensamblador.analizarLinea(Arrays.copyOfRange(palabra, 1, palabra.length));
+                             else
+                             {
+                                 System.out.println("CODOP = null");
+                                 System.out.println("\tERROR: Si existe una etiqueta debe existir otro token más");
+                                 System.out.println("OPERANDO = null\n");
+                             }
+                         }
+                         else
+                         {
+                             System.out.println("ETIQUETA = null");
+                             ensamblador.analizarLinea(palabra);
+                         }
+                     }
+                 }
+            }
+        }
     }
     
     public String readFile(String path, Charset encoding) throws IOException{ 
@@ -103,9 +102,6 @@ public final class EnsambladorHC12Raw {
     }
     
     private void analizarLinea(String[] palabras) {
-        
-        this.getCodops().add("null");
-        this.getOperandos().add("null");
         
         System.out.print(this.validarCODOP(palabras[0]));
         if(palabras.length>1)
@@ -159,15 +155,31 @@ public final class EnsambladorHC12Raw {
         else
             return s.toString();
     }
-
-    public ArrayList<String> getComentarios() {
-        return comentarios;
+    
+    public String getCodop() {
+        return codop;
     }
 
-    public void setComentarios(ArrayList<String> aComentarios) {
-        comentarios = aComentarios;
+    public void setCodop(String aCodop) {
+        codop = aCodop;
     }
 
+    public String getOperando() {
+        return operando;
+    }
+
+    public void setOperando(String aOperando) {
+        operando = aOperando;
+    }
+
+    public String getEtiqueta() {
+        return etiqueta;
+    }
+
+    public void setEtiqueta(String aEtiqueta) {
+        etiqueta = aEtiqueta;
+    }
+   
     public String getContenidoDeArchivo() {
         return contenidoDeArchivo;
     }
@@ -175,36 +187,8 @@ public final class EnsambladorHC12Raw {
     public void setContenidoDeArchivo(String aContenidoDeArchivo) {
         contenidoDeArchivo = aContenidoDeArchivo;
     }
-        
-    public ArrayList<String> getCodops() {
-        return codops;
-    }
-
-    public void setCodops(ArrayList<String> aCodops) {
-        codops = aCodops;
-    }
-
-    public ArrayList<String> getOperandos() {
-        return operandos;
-    }
-
-    public void setOperandos(ArrayList<String> aOperandos) {
-        operandos = aOperandos;
-    }
     
-    public ArrayList<String> getEtiquetas() {
-        return etiquetas;
-    }
-
-    public void setEtiquetas(ArrayList<String> aEtiquetas) {
-        etiquetas = aEtiquetas;
-    }
-    
-    public ArrayList<String> getLineasErroneas() {
-        return lineasErroneas;
-    }
-
-    public void setLineasErroneas(ArrayList<String> aLineasErroneas) {
-        lineasErroneas = aLineasErroneas;
+    public String getFILE_NAME() {
+        return FILE_NAME;
     }
 }
