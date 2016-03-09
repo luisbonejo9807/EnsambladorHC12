@@ -6,13 +6,10 @@
  */
 package ensambladorhc12;
 
-import com.sun.xml.internal.ws.api.ResourceLoader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.PrintWriter;
-import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -28,6 +25,7 @@ public final class EnsambladorHC12Raw {
     private String codop;
     private String operando;
     private String etiqueta;
+    private String contenidoTextField;
    
     public EnsambladorHC12Raw(String FILE_NAME) 
     {
@@ -57,43 +55,40 @@ public final class EnsambladorHC12Raw {
                 {   
                      String[] palabra = ensamblador.separarEnPalabras(lineas[i]);
 
-                     if(i == lineas.length-1 )
-                     {
-                         if( palabra[0].matches("/^END$/i"))
-                         {
-                              System.out.println("END");
-                              break;
-                         }
-                         else
-                             EnsambladorHC12Raw.writeError(i+1, "\n\tERROR: El archivo no termina con END");
-                     }
-                     else if (lineas[i].trim().isEmpty()) 
-                          EnsambladorHC12Raw.writeError(i+1, "\n\tERROR: linea Vacía");
-                     else if(ensamblador.isComentario(lineas[i])) 
-                         System.out.println("COMENTARIO="+lineas[i]);
-                     else 
-                     {
+                    if (lineas[i].trim().isEmpty()) 
+                          System.out.print(EnsambladorHC12Raw.writeError(i+1, "\n\tERROR: linea Vacía"));
+                    else if(ensamblador.isComentario(lineas[i])) 
+                         System.out.print("COMENTARIO="+lineas[i]);
+                    else 
+                    {
                          if(ensamblador.hasETIQUETA(lineas[i]))
                          {
                              ensamblador.setEtiqueta(ensamblador.validarETIQUETA(palabra[0]));
                              if(ensamblador.getEtiqueta().contains("\tERROR: "))
-                                 EnsambladorHC12Raw.writeError(i+1, ensamblador.getEtiqueta());
+                                 System.out.print("\n"+EnsambladorHC12Raw.writeError(i+1, ensamblador.getEtiqueta()));
                              else
-                                 System.out.print(ensamblador.getEtiqueta());
+                                 System.out.print("\n"+ensamblador.getEtiqueta()+"\n");
                              if(palabra.length>1)
-                                 ensamblador.analizarLinea(i+1, Arrays.copyOfRange(palabra, 1, palabra.length));
+                                 System.out.print(ensamblador.analizarLinea(i+1, Arrays.copyOfRange(palabra, 1, palabra.length)));
                              else
                              {
-                                 EnsambladorHC12Raw.writeError(i+1, "CODOP = null\n\tERROR: Si existe una etiqueta debe existir otro token más");
-                                 System.out.println("OPERANDO = null");
+                                 System.out.print(EnsambladorHC12Raw.writeError(i+1, "CODOP = null\n\tERROR: Si existe una etiqueta debe existir otro token más"));
+                                 System.out.print("OPERANDO = null\n");
                              }
                          }
                          else
                          {
-                             System.out.println("ETIQUETA = null");
-                             ensamblador.analizarLinea(i+1, palabra);
+                             System.out.print("\nETIQUETA = null\n");
+                             System.out.print(ensamblador.analizarLinea(i+1, palabra)+"\n");
                          }
-                     }
+                    }
+                    if(i == lineas.length-1 )
+                    {
+                        if( palabra[0].matches("/^END$/i"))
+                             System.out.println("END");
+                        else
+                            System.out.print(EnsambladorHC12Raw.writeError(i+1, "\n\tERROR: El archivo no termina con END"));
+                    }
                  }
             }
         }
@@ -104,37 +99,42 @@ public final class EnsambladorHC12Raw {
          return new String(encoded, encoding);
     }
     
-    private String[] separarEnLineas(String contenido) {
+    public String[] separarEnLineas(String contenido) {
         return contenido.split("\n");
     }
     
-    private String[] separarEnPalabras(String contenido) {
+    public String[] separarEnPalabras(String contenido) {
         return contenido.trim().split("\\s++");
     }
     
-    private void analizarLinea(int LINE_NUMBER, String[] palabras) {
+    public String analizarLinea(int LINE_NUMBER, String[] palabras) {
+        StringBuilder z = new StringBuilder();
         this.setCodop(this.validarCODOP(palabras[0]));
         if(this.getCodop().contains("\tERROR: "))
-            EnsambladorHC12Raw.writeError(LINE_NUMBER, this.getCodop());
+            z.append(EnsambladorHC12Raw.writeError(LINE_NUMBER, this.getCodop()));
         else
-            System.out.println(this.getCodop());
+            z.append(this.getCodop()+"\n");
         if(palabras.length>1)
         {
             StringBuilder s = new StringBuilder("");
             for (int i = 1; i < palabras.length; i++) 
                s.append(palabras[i]).append(" ");
             this.setOperando(this.validarOPERANDO(s.toString()));
-            System.out.println(this.getOperando());
+            z.append(this.getOperando());
         }
         else
-            System.out.println("OPERANDO = null\n");
+        {
+            this.setOperando("OPERANDO = null");
+            z.append(this.getOperando());
+        }
+        return z.toString();
     }
 
     public boolean  isComentario(String linea) {
          return this.separarEnPalabras(linea)[0].startsWith(";");
     }
     
-    private boolean hasETIQUETA(String linea ) {
+    public boolean hasETIQUETA(String linea ) {
         return !(""+linea.charAt(0)).matches("\\s++");
     }
     
@@ -157,7 +157,7 @@ public final class EnsambladorHC12Raw {
         return  s.toString();
     }
      
-   private String validarETIQUETA(String palabra ) {
+   public String validarETIQUETA(String palabra ) {
         StringBuilder s = new StringBuilder("ETIQUETA = "+palabra+"");
         if(palabra.length()>8)
             return s.append("\n\tERROR: Tamaño de ETIQUETA mayor a 8").toString();
@@ -203,13 +203,14 @@ public final class EnsambladorHC12Raw {
         contenidoDeArchivo = aContenidoDeArchivo;
     }
     
-    public static void writeError(int LINE_NUMBER, String FILE_CONTENT){
-        try(  PrintWriter out = new PrintWriter( "C:\\Users\\hp\\Documents\\NetBeansProjects\\EnsambladorHC12\\src\\ensambladorhc12\\"+LINE_NUMBER+"ERROR"+".txt" )  )
+    public static String writeError(int LINE_NUMBER, String FILE_CONTENT){
+        try(  PrintWriter out = new PrintWriter( "src/ensambladorhc12/"+LINE_NUMBER+"ERROR"+".txt" )  )
         {
-            System.out.println(FILE_CONTENT+":Linea "+LINE_NUMBER);
             out.println(FILE_CONTENT+":Linea "+LINE_NUMBER);
             out.close();
+            return FILE_CONTENT+":Linea "+LINE_NUMBER+"\n";
         } 
         catch (FileNotFoundException ex) {Logger.getLogger(EnsambladorHC12Raw.class.getName()).log(Level.SEVERE, null, ex);}
+        return null;
     }
 }        
