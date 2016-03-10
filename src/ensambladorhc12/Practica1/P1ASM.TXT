@@ -1,0 +1,9 @@
+; ejemplo con errores		
+Et12_xyz123	ADCA	1,PC
+%ET3	LDAA	#$90
+Netq%23	RMB	556
+etv1		
+XYZ	Ldaaxyz	4
+	%XYZ	
+	a.c.	%1111000
+Abc	SWI%	
