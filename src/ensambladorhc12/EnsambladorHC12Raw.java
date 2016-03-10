@@ -15,7 +15,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Arrays;
-import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -128,7 +127,7 @@ public final class EnsambladorHC12Raw {
         if(this.getCodop().contains("\tERROR: "))
             z.append(EnsambladorHC12Raw.writeError(LINE_NUMBER, this.getCodop()));
         else
-            z.append(this.getCodop()+"\n");
+            z.append(this.getCodop()).append("\n");
         if(palabras.length>1)
         {
             StringBuilder s = new StringBuilder("");
