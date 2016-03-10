@@ -21,21 +21,26 @@ import java.util.logging.Logger;
 
 public final class EnsambladorHC12Raw {
 
-    private String contenidoDeArchivo;
+
+    private String[] contenidoDeArchivo;
+    private String contenidoDeArchivoTxt;
     private String codop;
     private String operando;
     private String etiqueta;
-    private String contenidoTextField;
    
     public EnsambladorHC12Raw(String FILE_NAME) 
     {
-        try{this.setContenidoDeArchivo(this.readFile(FILE_NAME,StandardCharsets.UTF_8));}
+        try{
+            this.setContenidoDeArchivoTxt(this.readFile(FILE_NAME,StandardCharsets.UTF_8));
+            this.setContenidoDeArchivo(Files.readAllLines(Paths.get(FILE_NAME),StandardCharsets.UTF_8).toArray(new String[0])); 
+            }
         catch (IOException ex){Logger.getLogger(EnsambladorHC12.class.getName()).log(Level.SEVERE, null, ex);}
     }
-    
 
     
     public static void main(String[] args) {
+        
+        String finDeArchivo = null;
         String FILE_NAME = "src/ensambladorhc12/P1ASM2.TXT";
         new File("src/ensambladorhc12/errores").mkdirs();
         
@@ -45,50 +50,55 @@ public final class EnsambladorHC12Raw {
         else
         {
             EnsambladorHC12Raw ensamblador = new EnsambladorHC12Raw(FILE_NAME);
-            if(ensamblador.getContenidoDeArchivo().trim().isEmpty())
+            if(ensamblador.getContenidoDeArchivoTxt().trim().isEmpty())
                 EnsambladorHC12Raw.writeError(0, "\n\tERROR: El archivo no contiene nada");
             else
             {
-                String[] lineas = ensamblador.separarEnLineas(ensamblador.getContenidoDeArchivo());
+                String[] lineas = ensamblador.getContenidoDeArchivo();
 
                 for (int i = 0; i < lineas.length; i++) 
                 {   
-                     String[] palabra = ensamblador.separarEnPalabras(lineas[i]);
-
-                    if (lineas[i].trim().isEmpty()) 
-                          System.out.print(EnsambladorHC12Raw.writeError(i+1, "\n\tERROR: linea Vacía"));
-                    else if(ensamblador.isComentario(lineas[i])) 
-                         System.out.print("COMENTARIO="+lineas[i]);
-                    else 
-                    {
-                         if(ensamblador.hasETIQUETA(lineas[i]))
-                         {
-                             ensamblador.setEtiqueta(ensamblador.validarETIQUETA(palabra[0]));
-                             if(ensamblador.getEtiqueta().contains("\tERROR: "))
-                                 System.out.print("\n"+EnsambladorHC12Raw.writeError(i+1, ensamblador.getEtiqueta()));
-                             else
-                                 System.out.print("\n"+ensamblador.getEtiqueta()+"\n");
-                             if(palabra.length>1)
-                                 System.out.print(ensamblador.analizarLinea(i+1, Arrays.copyOfRange(palabra, 1, palabra.length)));
-                             else
-                             {
-                                 System.out.print(EnsambladorHC12Raw.writeError(i+1, "CODOP = null\n\tERROR: Si existe una etiqueta debe existir otro token más"));
-                                 System.out.print("OPERANDO = null\n");
-                             }
-                         }
-                         else
-                         {
-                             System.out.print("\nETIQUETA = null\n");
-                             System.out.print(ensamblador.analizarLinea(i+1, palabra)+"\n");
-                         }
-                    }
+                    String[] palabra = ensamblador.separarEnPalabras(lineas[i]);
+                    
                     if(i == lineas.length-1 )
                     {
                         if( palabra[0].matches("/^END$/i"))
+                        {
                              System.out.println("END");
+                             break;
+                        }
                         else
-                            System.out.print(EnsambladorHC12Raw.writeError(i+1, "\n\tERROR: El archivo no termina con END"));
+                            finDeArchivo = EnsambladorHC12Raw.writeError(i+1, "\nERROR: El archivo no termina con END");
                     }
+                    if (lineas[i].trim().isEmpty()) 
+                          System.out.print(EnsambladorHC12Raw.writeError(i+1, "\n\tERROR: linea Vacía"));
+                    else if(ensamblador.isComentario(lineas[i])) 
+                         System.out.print("COMENTARIO="+lineas[i]+"\n");
+                    else 
+                    {
+                        if(ensamblador.hasETIQUETA(lineas[i]))
+                        {
+                            ensamblador.setEtiqueta(ensamblador.validarETIQUETA(palabra[0]));
+                            if(ensamblador.getEtiqueta().contains("\tERROR: "))
+                                System.out.print("\n"+EnsambladorHC12Raw.writeError(i+1, ensamblador.getEtiqueta()));
+                            else
+                                System.out.print("\n"+ensamblador.getEtiqueta()+"\n");
+                            if(palabra.length>1)
+                                System.out.print(ensamblador.analizarLinea(i+1, Arrays.copyOfRange(palabra, 1, palabra.length)));
+                            else
+                            {
+                                System.out.print(EnsambladorHC12Raw.writeError(i+1, "CODOP = null\n\tERROR: Si existe una etiqueta debe existir otro token más"));
+                                System.out.print("OPERANDO = null\n");
+                            }
+                        }
+                        else
+                        {
+                            System.out.print("\nETIQUETA = null\n");
+                            System.out.print(ensamblador.analizarLinea(i+1, palabra)+"\n");
+                        }
+                    }
+                    if(finDeArchivo!=null)
+                        System.out.println(finDeArchivo);
                  }
             }
         }
@@ -97,10 +107,6 @@ public final class EnsambladorHC12Raw {
     public String readFile(String path, Charset encoding) throws IOException{ 
          byte[] encoded = Files.readAllBytes(Paths.get(path));
          return new String(encoded, encoding);
-    }
-    
-    public String[] separarEnLineas(String contenido) {
-        return contenido.split("\n");
     }
     
     public String[] separarEnPalabras(String contenido) {
@@ -113,7 +119,7 @@ public final class EnsambladorHC12Raw {
         if(this.getCodop().contains("\tERROR: "))
             z.append(EnsambladorHC12Raw.writeError(LINE_NUMBER, this.getCodop()));
         else
-            z.append(this.getCodop()+"\n");
+            z.append(this.getCodop()).append("\n");
         if(palabras.length>1)
         {
             StringBuilder s = new StringBuilder("");
@@ -195,12 +201,20 @@ public final class EnsambladorHC12Raw {
         etiqueta = aEtiqueta;
     }
    
-    public String getContenidoDeArchivo() {
+    public String[] getContenidoDeArchivo() {
         return contenidoDeArchivo;
     }
 
-    public void setContenidoDeArchivo(String aContenidoDeArchivo) {
+    public void setContenidoDeArchivo(String[] aContenidoDeArchivo) {
         contenidoDeArchivo = aContenidoDeArchivo;
+    }
+    
+    public String getContenidoDeArchivoTxt() {
+        return contenidoDeArchivoTxt;
+    }
+
+    public void setContenidoDeArchivoTxt(String contenidoDeArchivoTxt) {
+        this.contenidoDeArchivoTxt = contenidoDeArchivoTxt;
     }
     
     public static String writeError(int LINE_NUMBER, String FILE_CONTENT){
