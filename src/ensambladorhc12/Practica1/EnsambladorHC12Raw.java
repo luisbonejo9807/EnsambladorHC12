@@ -32,6 +32,7 @@ public final class EnsambladorHC12Raw {
     private String FILE_NAME;
     private String FOLDER_NAME;
     
+    
    
     public EnsambladorHC12Raw(String FILE_NAME, String FOLDER_NAME) 
     {
@@ -57,8 +58,8 @@ public final class EnsambladorHC12Raw {
     public void inicializarVariables(){
         try 
         {
-            this.setContenidoDeArchivoTxt(this.readFile(this.getFOLDER_NAME()+this.getFILE_NAME(),StandardCharsets.UTF_8));
-            this.setContenidoDeArchivo(Files.readAllLines(Paths.get(this.getFOLDER_NAME()+this.getFILE_NAME()),StandardCharsets.UTF_8).toArray(new String[0]));
+            this.setContenidoDeArchivoTxt(this.readFile(this.getFILE_NAME(),StandardCharsets.UTF_8));
+            this.setContenidoDeArchivo(Files.readAllLines(Paths.get(this.getFILE_NAME()),StandardCharsets.UTF_8).toArray(new String[0]));
             this.setContenidoProcesado(this.obtenerResultados());
         } catch (IOException ex) {Logger.getLogger(EnsambladorHC12Raw.class.getName()).log(Level.SEVERE, null, ex);}
     }
