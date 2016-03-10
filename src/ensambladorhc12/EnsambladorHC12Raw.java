@@ -36,22 +36,11 @@ public final class EnsambladorHC12Raw {
             }
         catch (IOException ex){Logger.getLogger(EnsambladorHC12.class.getName()).log(Level.SEVERE, null, ex);}
     }
-    
-    private static boolean isEND(int indice,int total,  String palabra) {
-        if(indice == total-1 )
-        {
-            if( palabra.matches("/^END$/i"))
-                 System.out.println("END");
-            else
-                System.out.print(EnsambladorHC12Raw.writeError(indice+1, "\n\tERROR: El archivo no termina con END"));
-            return true;
-        }
-        return false;
-    }
-    
 
     
     public static void main(String[] args) {
+        
+        String finDeArchivo = null;
         String FILE_NAME = "src/ensambladorhc12/P1ASM2.TXT";
         new File("src/ensambladorhc12/errores").mkdirs();
         
@@ -71,9 +60,16 @@ public final class EnsambladorHC12Raw {
                 {   
                     String[] palabra = ensamblador.separarEnPalabras(lineas[i]);
                     
-                    if(EnsambladorHC12Raw.isEND(i, lineas.length, palabra[0]))
-                        break;
-                    
+                    if(i == lineas.length-1 )
+                    {
+                        if( palabra[0].matches("/^END$/i"))
+                        {
+                             System.out.println("END");
+                             break;
+                        }
+                        else
+                            finDeArchivo = EnsambladorHC12Raw.writeError(i+1, "\n\tERROR: El archivo no termina con END");
+                    }
                     if (lineas[i].trim().isEmpty()) 
                           System.out.print(EnsambladorHC12Raw.writeError(i+1, "\n\tERROR: linea Vacía"));
                     else if(ensamblador.isComentario(lineas[i])) 
@@ -94,19 +90,15 @@ public final class EnsambladorHC12Raw {
                                 System.out.print(EnsambladorHC12Raw.writeError(i+1, "CODOP = null\n\tERROR: Si existe una etiqueta debe existir otro token más"));
                                 System.out.print("OPERANDO = null\n");
                             }
-                            
-                             if(EnsambladorHC12Raw.isEND(i, lineas.length, palabra[0]))
-                                break;
                         }
                         else
                         {
                             System.out.print("\nETIQUETA = null\n");
                             System.out.print(ensamblador.analizarLinea(i+1, palabra)+"\n");
-                            
-                             if(EnsambladorHC12Raw.isEND(i, lineas.length, palabra[0]))
-                                break;
                         }
                     }
+                    if(finDeArchivo!=null)
+                        System.out.println(finDeArchivo);
                  }
             }
         }
@@ -235,6 +227,4 @@ public final class EnsambladorHC12Raw {
         catch (FileNotFoundException ex) {Logger.getLogger(EnsambladorHC12Raw.class.getName()).log(Level.SEVERE, null, ex);}
         return null;
     }
-
-    
 }        
