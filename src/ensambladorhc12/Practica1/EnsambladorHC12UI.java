@@ -1,21 +1,22 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
+ * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package ensambladorhc12;
+package ensambladorch12;
 
+import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import javax.swing.JFileChooser;
 
 /**
  *
- * @author hp
+ * @author oscar
  */
 public class EnsambladorHC12UI extends javax.swing.JFrame {
 
     /**
-     * Creates new form NewJFrame
+     * Creates new form EnsambladorHC12UI
      */
     public EnsambladorHC12UI() {
         initComponents();
@@ -30,56 +31,88 @@ public class EnsambladorHC12UI extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jScrollPane1 = new javax.swing.JScrollPane();
-        jTextArea1 = new javax.swing.JTextArea();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        jTextArea1 = new javax.swing.JTextArea();
         jScrollPane2 = new javax.swing.JScrollPane();
         jTextArea2 = new javax.swing.JTextArea();
+        jButton1 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+
+        jLabel1.setText("ArchivoTxt");
+
+        jLabel2.setText("Resultados");
 
         jTextArea1.setColumns(20);
         jTextArea1.setRows(5);
         jScrollPane1.setViewportView(jTextArea1);
 
-        jLabel1.setText("Archivo TXT");
-
-        jLabel2.setText("Resultados");
-
         jTextArea2.setColumns(20);
         jTextArea2.setRows(5);
         jScrollPane2.setViewportView(jTextArea2);
+
+        jButton1.setText("Archivo");
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jScrollPane2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 462, Short.MAX_VALUE)
             .addGroup(layout.createSequentialGroup()
-                .addGap(23, 23, 23)
+                .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel2)
-                    .addComponent(jLabel1))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 400, Short.MAX_VALUE)
-            .addComponent(jScrollPane2)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jLabel2)
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jLabel1)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jButton1)))
+                .addContainerGap())
+            .addComponent(jScrollPane1)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jLabel1)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel1)
+                    .addComponent(jButton1))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 95, Short.MAX_VALUE)
+                .addComponent(jScrollPane1)
+                .addGap(18, 18, 18)
+                .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 14, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jLabel2)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 127, Short.MAX_VALUE)
-                .addContainerGap())
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 132, Short.MAX_VALUE))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        JFileChooser fileChooser = new JFileChooser();
+         if (fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+            File selectedFile = fileChooser.getSelectedFile();
+            String FILE_NAME = selectedFile.getAbsolutePath();
+            String FOLDER_NAME =selectedFile.getParentFile().toString();
+            
+            EnsambladorHC12Raw ensamblador = new EnsambladorHC12Raw(FILE_NAME, FOLDER_NAME);
+            if(!Files.exists(Paths.get(FILE_NAME)))
+                ensamblador.setContenidoProcesado(ensamblador.writeError(0, "\n\tERROR: El archivo "+FILE_NAME+" no existe junto al .jar"));
+            else
+                ensamblador.inicializarVariables();
+            this.getjTextArea1().setText(ensamblador.getContenidoDeArchivoTxt());
+            this.getjTextArea2().setText(ensamblador.getContenidoProcesado());
+            this.getjTextArea1().setCaretPosition(0);
+            this.getjTextArea2().setCaretPosition(0);
+        }
+    }//GEN-LAST:event_jButton1ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -107,41 +140,17 @@ public class EnsambladorHC12UI extends javax.swing.JFrame {
             java.util.logging.Logger.getLogger(EnsambladorHC12UI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
-        //</editor-fold>
 
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
                 EnsambladorHC12UI n = new EnsambladorHC12UI();
-                n.setSize(700, 1000);
+                n.setSize(700, 600);
                 n.setVisible(true);
-                
-                String FILE_NAME = "P1ASM.TXT";
-                String FOLDER_NAME ="";
-                EnsambladorHC12Raw ensamblador = new EnsambladorHC12Raw(FILE_NAME, FOLDER_NAME);
-
-                if(!Files.exists(Paths.get(FOLDER_NAME+FILE_NAME)))
-                    ensamblador.setContenidoProcesado(ensamblador.writeError(0, "\n\tERROR: El archivo "+FILE_NAME+" no existe junto al .jar"));
-                else
-                    ensamblador.inicializarVariables();
-                n.getjTextArea1().setText(ensamblador.getContenidoDeArchivoTxt());
-                n.getjTextArea2().setText(ensamblador.getContenidoProcesado());
-                n.getjTextArea1().setCaretPosition(0);
-                n.getjTextArea2().setCaretPosition(0);
-                
             }
         });
     }
-
-    // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel2;
-    private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JScrollPane jScrollPane2;
-    private javax.swing.JTextArea jTextArea1;
-    private javax.swing.JTextArea jTextArea2;
-    // End of variables declaration//GEN-END:variables
-
+    
     public javax.swing.JTextArea getjTextArea1() {
         return jTextArea1;
     }
@@ -150,4 +159,13 @@ public class EnsambladorHC12UI extends javax.swing.JFrame {
     public javax.swing.JTextArea getjTextArea2() {
         return jTextArea2;
     }
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton jButton1;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JTextArea jTextArea1;
+    private javax.swing.JTextArea jTextArea2;
+    // End of variables declaration//GEN-END:variables
 }
