@@ -1,4 +1,5 @@
 Quiñones Nuñez Karla Patricia D07
+Palomares López Oscar Alberto D15
 
 Aquí van los archivos definitivos de la práctica1 :)
 Si ejecutas el código objeto debes tener en la misma carpeta un archivo llamado P1ASM.TXT
