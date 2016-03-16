@@ -17,6 +17,7 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Pattern;
 
 
 public final class EnsambladorHC12Raw {
@@ -29,9 +30,11 @@ public final class EnsambladorHC12Raw {
     private String operando;
     private String etiqueta;
     private final String FOLDER_ERRORS = "errores";
+    private final String TABOP = "/TABOP.TXT";
     private String FILE_NAME;
     private String FOLDER_NAME;
-    
+    private String contenidoTABOPtxt;
+    private String[] contenidoTABOP;
     
    
     public EnsambladorHC12Raw(String FILE_NAME, String FOLDER_NAME) 
@@ -58,6 +61,8 @@ public final class EnsambladorHC12Raw {
     public void inicializarVariables(){
         try 
         {
+            this.setContenidoTABOPtxt(this.readFile(this.getFOLDER_NAME()+this.getTABOP(),StandardCharsets.UTF_8));
+            this.setContenidoTABOP(Files.readAllLines(Paths.get(this.getFILE_NAME()),StandardCharsets.UTF_8).toArray(new String[0]));
             this.setContenidoDeArchivoTxt(this.readFile(this.getFILE_NAME(),StandardCharsets.UTF_8));
             this.setContenidoDeArchivo(Files.readAllLines(Paths.get(this.getFILE_NAME()),StandardCharsets.UTF_8).toArray(new String[0]));
             this.setContenidoProcesado(this.obtenerResultados());
@@ -73,7 +78,7 @@ public final class EnsambladorHC12Raw {
         else
         {
             String[] lineas = this.getContenidoDeArchivo();
-
+            
             for (int i = 0; i < lineas.length; i++) 
             {   
                  String[] palabra = this.separarEnPalabras(lineas[i]);
@@ -143,10 +148,12 @@ public final class EnsambladorHC12Raw {
             for (int i = 1; i < palabras.length; i++) 
                s.append(palabras[i]).append(" ");
             this.setOperando(this.validarOPERANDO(s.toString()));
+            z.append(this.buscarEnTABOP(palabras[0], true));
             z.append(this.getOperando());
         }
         else
         {
+            z.append(this.buscarEnTABOP(palabras[0], false));
             this.setOperando("OPERANDO = null");
             z.append(this.getOperando());
         }
@@ -168,15 +175,15 @@ public final class EnsambladorHC12Raw {
     public String validarCODOP(String palabra ) {
         StringBuilder s = new StringBuilder("CODOP = "+palabra+"");
         if(palabra.length()>5)
-            return s.append("\n\tERROR: Tamaño de CODOP mayor a 5").toString();
+            s.append("\n\tERROR: Tamaño de CODOP mayor a 5").toString();
         else if(!(""+palabra.charAt(0)).matches("^[a-zA-Z]$"))
-                return s.append("\n\tERROR: Los CODOPS no pueden empezar con carácteres que no sean alfabéticos").toString();
+            s.append("\n\tERROR: Los CODOPS no pueden empezar con carácteres que no sean alfabéticos").toString();
         else if(!palabra.matches("^[^.]*.[^.]*$"))
-            return  s.append("\n\tERROR: No se puede usar más de 2 veces el caracter \".\" en los CODOPS").toString();
+            s.append("\n\tERROR: No se puede usar más de 2 veces el caracter \".\" en los CODOPS").toString();
         else if(palabra.length()> 1 &&
                 !(palabra.substring(1).matches("^[a-zA-Z\\.]+$"))
                ) 
-            return s.append("\n\tERROR: Existe algún carácter inválido en el CODOP").toString();
+            s.append("\n\tERROR: Existe algún carácter inválido en el CODOP").toString();
         return  s.toString();
     }
      
@@ -271,5 +278,41 @@ public final class EnsambladorHC12Raw {
 
     public String getFOLDER_ERRORS() {
         return FOLDER_ERRORS;
+    }
+
+    public String getTABOP() {
+        return TABOP;
+    }
+
+    public void setContenidoTABOPtxt(String contenidoTABOPtxt) {
+        this.contenidoTABOPtxt = contenidoTABOPtxt;
+    }
+    public  String getContenidoTABOPtxt() {
+        return contenidoTABOPtxt;
+    }
+    
+    public String[] getContenidoTABOP() {
+        return contenidoTABOP;
+    }
+
+    public void setContenidoTABOP(String[] contenidoTABOP) {
+        this.contenidoTABOP = contenidoTABOP;
+    }
+    
+    public String buscarEnTABOP(String palabra, boolean hasOperando){
+        for (String linea : contenidoTABOPtxt.split("\n")) 
+        {
+            if (linea.contains(palabra.toUpperCase())) 
+            {
+                String[] tokens = linea.split("\\|");
+                if(tokens[0].contains("SI") && !hasOperando)
+                    return "EL CODOP NO DEBE DE TENER OPERANDO";
+                else if (tokens[0].contains("NO") && hasOperando)
+                    return "EL CODOP DEBE DE TENER OPERANDO";
+                else
+                    return "Modo de direccionamiento:"+tokens[2]+"\tCódigo Máquina:"+tokens[3]+"Total de bytes calculados:"+tokens[4]+"\tTotal de bytes por calcular:\t"+"0"+"Suma total de bytes:"+tokens[6]+"\n";       
+            }
+        }
+        return "\nNO SE ENCONTRO EL CODOP DE OPERACIÓN en el archivo TABOP.txt\n";
     }
 }        
