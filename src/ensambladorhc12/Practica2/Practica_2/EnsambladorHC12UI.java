@@ -30,6 +30,9 @@ public class EnsambladorHC12UI extends javax.swing.JFrame {
         jScrollPane2 = new javax.swing.JScrollPane();
         jTextArea2 = new javax.swing.JTextArea();
         jButton1 = new javax.swing.JButton();
+        jScrollPane3 = new javax.swing.JScrollPane();
+        jTextArea3 = new javax.swing.JTextArea();
+        jLabel3 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -52,36 +55,50 @@ public class EnsambladorHC12UI extends javax.swing.JFrame {
             }
         });
 
+        jTextArea3.setColumns(20);
+        jTextArea3.setRows(5);
+        jScrollPane3.setViewportView(jTextArea3);
+
+        jLabel3.setText("TABOP");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(23, 23, 23)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel2)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jLabel1)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jButton1)))
+                        .addGap(23, 23, 23)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel2)
+                            .addComponent(jLabel1)))
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 377, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jLabel3)
+                        .addGap(68, 68, 68)
+                        .addComponent(jButton1))
+                    .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 212, Short.MAX_VALUE))
                 .addContainerGap())
-            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 400, Short.MAX_VALUE)
             .addComponent(jScrollPane2)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
+                .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel1)
-                    .addComponent(jButton1))
+                    .addComponent(jButton1)
+                    .addComponent(jLabel3))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 91, Short.MAX_VALUE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 186, Short.MAX_VALUE)
+                    .addComponent(jScrollPane1))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel2)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 122, Short.MAX_VALUE)
-                .addContainerGap())
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 186, Short.MAX_VALUE))
         );
 
         pack();
@@ -104,17 +121,18 @@ public class EnsambladorHC12UI extends javax.swing.JFrame {
             System.out.println(FILE_NAME+"\n"+FOLDER_NAME);
             EnsambladorHC12Raw ensamblador = new EnsambladorHC12Raw(FILE_NAME, FOLDER_NAME);
 
-            if(!Files.exists(Paths.get(FILE_NAME)))
-                ensamblador.setContenidoProcesado(ensamblador.writeError(0, "\n\tERROR: El archivo "+FILE_NAME+" no existe junto al .jar"));
+            if(!Files.exists(Paths.get(ensamblador.getFOLDER_NAME()+ensamblador.getTABOP())) )
+                ensamblador.setContenidoProcesado(ensamblador.writeError(0, "\n\tERROR: El archivo TABOP.TXT no existe en la carpeta del archivo P2ASM.TXT seleccionado"));
             else
                 ensamblador.inicializarVariables();
             this.getjTextArea1().setText(ensamblador.getContenidoDeArchivoTxt());
             this.getjTextArea2().setText(ensamblador.getContenidoProcesado());
+            this.getjTextArea3().setText(ensamblador.getContenidoTABOPtxt());
             this.getjTextArea1().setCaretPosition(0);
             this.getjTextArea2().setCaretPosition(0);
+            this.getjTextArea3().setCaretPosition(0);
         }
-        
-       
+
     }//GEN-LAST:event_jButton1ActionPerformed
 
     /**
@@ -159,10 +177,13 @@ public class EnsambladorHC12UI extends javax.swing.JFrame {
     private javax.swing.JButton jButton1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JTextArea jTextArea1;
     private javax.swing.JTextArea jTextArea2;
+    private javax.swing.JTextArea jTextArea3;
     // End of variables declaration//GEN-END:variables
 
     public javax.swing.JTextArea getjTextArea1() {
@@ -180,5 +201,19 @@ public class EnsambladorHC12UI extends javax.swing.JFrame {
 
     public void setjButton1(javax.swing.JButton jButton1) {
         this.jButton1 = jButton1;
+    }
+
+    /**
+     * @return the jTextArea3
+     */
+    public javax.swing.JTextArea getjTextArea3() {
+        return jTextArea3;
+    }
+
+    /**
+     * @param jTextArea3 the jTextArea3 to set
+     */
+    public void setjTextArea3(javax.swing.JTextArea jTextArea3) {
+        this.jTextArea3 = jTextArea3;
     }
 }
