@@ -146,12 +146,12 @@ public final class EnsambladorHC12Raw {
             for (int i = 1; i < palabras.length; i++) 
                s.append(palabras[i]).append(" ");
             this.setOperando(this.validarOPERANDO(s.toString()));
-            z.append(this.buscarEnTABOP(palabras[0], true));
+            z.append(this.buscarEnTABOP(palabras[0], true,LINE_NUMBER));
             z.append(this.getOperando());
         }
         else
         {
-            z.append(this.buscarEnTABOP(palabras[0], false));
+            z.append(this.buscarEnTABOP(palabras[0], false, LINE_NUMBER));
             this.setOperando("OPERANDO = null\n");
             z.append(this.getOperando());
         }
@@ -200,7 +200,7 @@ public final class EnsambladorHC12Raw {
     }
     
     public String writeError(int LINE_NUMBER, String FILE_CONTENT){
-        try(PrintWriter out = new PrintWriter(this.getFOLDER_ERRORS()+"/"+LINE_NUMBER+"ERROR"+".txt"))
+        try(PrintWriter out = new PrintWriter(this.getFOLDER_ERRORS()+"/"+LINE_NUMBER+"ERROR"+FILE_CONTENT.replaceAll("\\s","") +".txt"))
         {
             out.println(FILE_CONTENT+":Linea "+LINE_NUMBER);
             out.close();
@@ -290,16 +290,16 @@ public final class EnsambladorHC12Raw {
         return this.contenidoTABOPtxt;
     }
     
-    public String buscarEnTABOP(String palabra, boolean hasOperando){
+    public String buscarEnTABOP(String palabra, boolean hasOperando, int LINE_NUMBER){
         for (String linea : contenidoTABOPtxt.split("\n")) 
         {
             if (linea.contains(palabra.toUpperCase())) 
             {
                 String[] tokens = linea.split("\\|");
                 if(tokens[1].contains("SI") && !hasOperando)
-                    return "EL CODOP DEBE DE TENER OPERANDO\n";
+                    return this.writeError(LINE_NUMBER, "EL CODOP DEBE DE TENER OPERANDO\n");
                 else if (tokens[1].contains("NO") && hasOperando)
-                    return "EL CODOP NO DEBE DE TENER OPERANDO\n";
+                    return this.writeError(LINE_NUMBER, "EL CODOP NO DEBE DE TENER OPERANDO\n");
                 else
                     return "Modo de direccionamiento:"+tokens[2]+"\tCódigo Máquina:"+tokens[3]+"\tTotal de bytes calculados:"+tokens[4]+"\tTotal de bytes por calcular:"+tokens[5]+"\tSuma total de bytes:"+tokens[6]+"\n";       
             }
