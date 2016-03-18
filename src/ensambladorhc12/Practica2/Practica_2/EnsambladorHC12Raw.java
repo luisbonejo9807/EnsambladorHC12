@@ -304,6 +304,6 @@ public final class EnsambladorHC12Raw {
                     return "Modo de direccionamiento:"+tokens[2]+"\tCódigo Máquina:"+tokens[3]+"\tTotal de bytes calculados:"+tokens[4]+"\tTotal de bytes por calcular:"+tokens[5]+"\tSuma total de bytes:"+tokens[6]+"\n";       
             }
         }
-        return "\nNO SE ENCONTRO EL CODOP DE OPERACIÓN en el archivo TABOP.txt\n";
+        return this.writeError(LINE_NUMBER, "\nNO SE ENCONTRO EL CODOP DE OPERACIÓN en el archivo TABOP.txt\n");
     }
 }        
