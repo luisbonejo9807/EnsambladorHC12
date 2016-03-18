@@ -29,7 +29,7 @@ public final class EnsambladorHC12Raw {
     private String codop;
     private String operando;
     private String etiqueta;
-    private final String FOLDER_ERRORS = "errores";
+    private final String FOLDER_ERRORS = "/errores";
     private final String TABOP = "/TABOP.TXT";
     private String FILE_NAME;
     private String FOLDER_NAME;
@@ -40,7 +40,7 @@ public final class EnsambladorHC12Raw {
     {
        this.setFILE_NAME(FILE_NAME);
        this.setFOLDER_NAME(FOLDER_NAME);
-        new File(getFOLDER_ERRORS()).mkdirs();
+        new File(FOLDER_NAME+getFOLDER_ERRORS()).mkdirs();
     }
 
     
@@ -200,7 +200,7 @@ public final class EnsambladorHC12Raw {
     }
     
     public String writeError(int LINE_NUMBER, String FILE_CONTENT){
-        try(PrintWriter out = new PrintWriter(this.getFOLDER_ERRORS()+"/"+LINE_NUMBER+"ERROR"+FILE_CONTENT.replaceAll("\\s","") +".txt"))
+        try(PrintWriter out = new PrintWriter(this.getFOLDER_NAME()+this.getFOLDER_ERRORS()+"/"+LINE_NUMBER+"ERROR"+FILE_CONTENT.replaceAll("\\s","") +".txt"))
         {
             out.println(FILE_CONTENT+":Linea "+LINE_NUMBER);
             out.close();
