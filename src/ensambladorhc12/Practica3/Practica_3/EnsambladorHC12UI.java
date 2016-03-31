@@ -6,6 +6,8 @@
  */
 package ensambladorhc12;
 
+import java.awt.Dimension;
+import java.awt.Toolkit;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -105,7 +107,7 @@ public class EnsambladorHC12UI extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        JFrame parentFrame = new JFrame();
+       JFrame parentFrame = new JFrame();
  
         JFileChooser fileChooser = new JFileChooser();
         fileChooser.setDialogTitle("Specify a file to save");   
@@ -118,7 +120,6 @@ public class EnsambladorHC12UI extends javax.swing.JFrame {
             String FILE_NAME = fileToSave.getAbsolutePath();
             String FOLDER_NAME =fileToSave.getParentFile().toString();
             
-            System.out.println(FILE_NAME+"\n"+FOLDER_NAME);
             EnsambladorHC12Raw ensamblador = new EnsambladorHC12Raw(FILE_NAME, FOLDER_NAME);
 
             if(!Files.exists(Paths.get(ensamblador.getFOLDER_NAME()+ensamblador.getTABOP())) )
@@ -132,8 +133,7 @@ public class EnsambladorHC12UI extends javax.swing.JFrame {
             this.getjTextArea2().setCaretPosition(0);
             this.getjTextArea3().setCaretPosition(0);
         }
-        
-       
+
     }//GEN-LAST:event_jButton1ActionPerformed
 
     /**
@@ -168,7 +168,8 @@ public class EnsambladorHC12UI extends javax.swing.JFrame {
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
                 EnsambladorHC12UI n = new EnsambladorHC12UI();
-                n.setSize(700, 1000);
+                Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+                n.setBounds(0,0,screenSize.width/2, screenSize.height-40);
                 n.setVisible(true);
             }
         });
