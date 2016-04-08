@@ -1,1 +1,5 @@
 
+Quiñones Nuñez Karla Patricia D07
+Palomares López Oscar Alberto D15
+
+Si ejecutas el código objeto debes tener en la misma carpeta del archivo PASM.TXT el archivo TABOP.TXT
