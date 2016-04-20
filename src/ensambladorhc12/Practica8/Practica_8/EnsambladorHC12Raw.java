@@ -28,7 +28,7 @@ import java.util.regex.Pattern;
 
 public final class EnsambladorHC12Raw {
     
-    private final String TEMPORAL_FILE_NAME = "/P7TMP.txt";    
+    private final String TEMPORAL_FILE_NAME = "/P8TMP.txt";    
     private final String FOLDER_ERRORS = "/errores";
     private final String TABOP_FILE_NAME = "/TABOP.TXT";
     private final String TABSIM_FILE_NAME = "/TABSIM.TXT";
