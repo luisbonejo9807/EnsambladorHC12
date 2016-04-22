@@ -114,7 +114,7 @@ public class Practica7 {
                    valor2 = Long.toHexString(suma);
                    if(valor2.length()==16)
                         valor2 = valor2.substring(12);
-                   Procesador.agregarCeros4(valor2);
+                   valor2 = Procesador.agregarCeros4(valor2);
                }
                     
                else
