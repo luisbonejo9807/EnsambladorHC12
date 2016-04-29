@@ -259,7 +259,7 @@
     </Container>
     <Component class="javax.swing.JLabel" name="jLabel7">
       <Properties>
-        <Property name="text" type="java.lang.String" value="Practica 8"/>
+        <Property name="text" type="java.lang.String" value="Practica 7"/>
       </Properties>
     </Component>
   </SubComponents>

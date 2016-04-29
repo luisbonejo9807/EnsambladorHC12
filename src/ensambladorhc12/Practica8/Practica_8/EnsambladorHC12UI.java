@@ -92,7 +92,7 @@ public class EnsambladorHC12UI extends javax.swing.JFrame {
         jTextArea6.setRows(5);
         jScrollPane6.setViewportView(jTextArea6);
 
-        jLabel7.setText("Practica 8");
+        jLabel7.setText("Practica 7");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);

@@ -63,7 +63,7 @@ public class Practica8 {
             if(valor.contains("INH"))
             {
                 valor = valor.replaceAll("\\s","");
-                g.append(tokens[1]).append("\t").append(tokens[2]).append("\t").append(tokens[3]).append("\t").append(tokens[4]).append("\t").append(Procesador.agregarCeros4(valor.substring(4))).append("\n");
+                g.append(tokens[1]).append("\t").append(tokens[2]).append("\t").append(tokens[3]).append("\t").append(tokens[4]).append("\t").append(valor.substring(4)).append("\n");
             }
             else if(valor.contains("DIR"))
             {
@@ -191,7 +191,7 @@ public class Practica8 {
                         return "[IDX2]|"+tokens[3];
                     else if(tipoOperando.equals("[D,IDX]") && linea.contains("[D,IDX]"))
                         return "[D,IDX]|"+tokens[3];
-                    else
+                    else if(!Validador.validarETIQUETA(operando).contains("ERROR")&& !tipoOperando.equals("EXT"))
                         return "REL|"+tokens[3];
                }
             }
