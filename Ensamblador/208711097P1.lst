@@ -1,0 +1,16 @@
+
+as12 (v1.2d) Absolute assembler for the Motorola CPU12 (freeware)
+Executed: Tue Aug 27 10:27:41 2013
+
+
+e000                    	  ORG   $E000
+e000 86 d3              INI       ldaa  #$D3    ;asigna al registro denomunado acumulador A D3H
+e002 c6 00              	  ldab  #00     ;asigana al regidtro denominado acumulador B lo que
+                        	                ;exista en ka direccion de memoria (0000H)
+e004 8b ab              	  adda  #$AB    ;A=A+ABH
+e006 db 02              	  addb  $02     ;B=B+(0002H)
+e008 06 e0 00           	  jmp   INI
+                        	  END
+
+Total errors: 0
+Total warnings: 0
