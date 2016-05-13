@@ -29,14 +29,14 @@ public class Practica10 {
             {
                 //codigo.append("INICIO\n");
                 codigo.append(Practica10.procesarS0(FileName));
-                codigo.append("\n");
+                //codigo.append("\n");
             }
             else if(tokens[2].toString().equals("END"))
             {
                 if(s1!= null)
                 {
                     codigo.append(s1.getContenido());
-                    codigo.append("\n\n");
+                    //codigo.append("\n\n");
                 }
                 s1 = null;
                 //codigo.append("\nFIN\n");
@@ -62,7 +62,7 @@ public class Practica10 {
                     s1.setLongitud(s1.getLongitud()+32- s1.getCodigoMaquina().length());
                     s1.setCodigoMaquina(s1.getCodigoMaquina()+tokens[4].substring(0, 32- s1.getCodigoMaquina().length() ));
                     codigo.append(s1.getContenido());
-                    codigo.append("\n\n");
+                    //codigo.append("\n\n");
                     s1 = new S1("1");
                     s1.setDireccion(Long.toHexString(Long.parseLong(tokens[0],16)+Long.parseLong(Long.toHexString(longTmp/2),16)));
                     s1.setLongitud(((longTmp/2)/2));
@@ -72,7 +72,7 @@ public class Practica10 {
             else if(s1!= null)
             {
                     codigo.append(s1.getContenido());
-                    codigo.append("\n\n");
+                    //codigo.append("\n\n");
                     s1 = null;
             }
         }

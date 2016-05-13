@@ -34,7 +34,7 @@ public class S1 {
         
         s.append(this.calcularChecksum(longHex));
         
-        return s.toString();
+        return s.toString().toUpperCase();
     }
     
     public String calcularChecksum(String longitud){
